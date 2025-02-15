@@ -21,7 +21,7 @@ This repository presents a Stackelberg game-theoretic framework for optimizing M
 
 📊 Data Processing: Python (NumPy, Pandas, Scipy) for demand modeling and ranking.
 
-⚙ Simulation & Evaluation: Simulated in Python using real-world EV charging datasets.
+⚙ Simulation & Evaluation: Simulated in Python using Open-Source libraries.
 
 
 **Use Cases**
