@@ -88,7 +88,15 @@ This section summarizes the main modeling choices and simulation settings so tha
   - Combined and per-unit utilization.  
   - Number of unserved EVs and unmet energy.  
   - Average waiting time at FCSs and MCVs.  
-  - Fairness index across districts (used in the agentic AI proof-of-concept experiments).   
+  - Fairness index across districts (used in the agentic AI proof-of-concept experiments).
+ 
+### Note: 
+Fairness is measured using **Jain's fairness index**, a standard metric in resource allocation. For each district *i* we compute a service level `s_i`, defined as the fraction of EV charging
+requests starting in that district that are successfully served during the simulation horizon. If there are n districts and s_i denotes the service level in district i, the fairness index is:
+
+J = ( (sum of s_i over all districts)^2 ) / ( n × (sum of s_i^2 over all districts) )
+
+where `J` ranges from `1/n` (highly unequal service) to `1` (perfectly equal service). Higher values therefore indicate more equitable service quality across districts. In the IEEE ITS Magazine proof‑of‑concept experiments, we report this Jain fairness index alongside revenue, average waiting time, and the number of unserved EVs.  
 
 Section numbering, equations, and parameter symbols in the technical PDF follow the same notation as in the journal manuscripts, so that every quantity reported there can be traced back to its exact definition here.
 
