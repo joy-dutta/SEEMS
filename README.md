@@ -147,8 +147,8 @@ To illustrate system behavior, the repository includes videos showing:
 
 📄 **Associated manuscripts**  
 Two journal manuscripts based on this framework are being prepared / submitted:
-- a methodological paper on the Stackelberg-based hybrid FCS–MCV optimization (target: *Transportation Research Part C: Emerging Technologies*), and  
-- a system-level, agentic AI perspective article on LLM-based coordination for dynamic EV charging (target: *IEEE Intelligent Transportation Systems Magazine*).   
+- a methodological paper on the Stackelberg-based hybrid FCS–MCV optimization (target: * Energy *), and  
+- a system-level research paper on bounded agentic AI orchestration for dynamic EV charging with fixed charging stations and mobile charging vehicles (target: * Sustainable Cities and Society *).
 
 📌 **Code release plan**  
 To protect the integrity of the peer-review process and allow for double-blind submissions where required, the full source code will be released after the associated manuscripts complete peer review and are accepted. Until then, the technical documentation and parameter tables provide sufficient detail for independent reimplementation of the main experiments.
@@ -159,14 +159,28 @@ Stay tuned for further updates! 🚀🔋⚡
 
 ## Role in Agentic AI for Hybrid EV Charging
 
-This simulator also serves as the tactical and operational layer in our ongoing work on agentic AI for EV charging. In that line of work, a higher-level planner (for example, an LLM-based coordinator agent) does not compute schedules directly, but configures a small set of parameters in the Stackelberg model, such as: 
+In addition to the Stackelberg-based optimization study, this simulator also serves as the underlying decision engine for a second line of work on **agentic AI for dynamic EV charging**.
 
-- the profit margin parameter θ and the cost weights (α, β, γ) in the MCV pricing rule,  
-- the driver cost weights (ζ, δ, ε) that trade off price, distance, and waiting time,  
-- the deployment triggers and Pareto tie-breaking rules used to select operating points, and  
-- fairness-related metrics and thresholds (e.g., district-level service quality indices).
+That work studies how a higher-level planning layer can make a hybrid EV charging system easier to steer, explain, and align with different stakeholder priorities without changing the physical charging logic itself. Instead of directly controlling chargers or vehicles, the agentic layer operates **above** the SEEMS simulator and modifies only a small set of bounded, interpretable policy settings that shape how the existing hybrid FCS-MCV platform behaves.
 
-By changing only these policy-level parameters, the same SEEMS simulator can realize different operator intents such as revenue maximization, equitable service across districts, or peak-resilient operation. The proof-of-concept policy orchestration experiments reported in our *IEEE Intelligent Transportation Systems Magazine* submission on agentic AI for dynamic EV charging are built directly on this simulator. 
+Examples of such policy-level settings include:
+
+- the profit margin parameter `θ` and the pricing-cost weights `(α, β, γ)` used in the MCV pricing rule,  
+- the driver preference weights `(ζ, δ, ε)` that determine how charging cost, travel distance, and waiting time are balanced in EV decision-making,  
+- congestion-response and deployment-trigger settings that influence when and where MCVs are dispatched,  
+- Pareto tie-breaking or operating-point selection rules used when multiple feasible trade-offs exist, and  
+- fairness-related indicators or thresholds used to evaluate district-level service quality.
+
+By adjusting only these bounded controls, the same SEEMS simulator can be reoriented toward different operating modes, such as:
+- revenue-oriented operation,
+- equity-aware service provision across districts, or
+- peak-resilient charging support during congestion or disruption.
+
+This makes the simulator useful not only as an optimization artifact, but also as a **tactical and operational backend** for studying explainable AI-assisted coordination in EV charging systems. In that setting, the simulator continues to handle queueing, assignment, pricing logic, MCV deployment, and infrastructure constraints, while the higher-level planner provides policy intent and configuration updates.
+
+The associated agentic AI manuscript uses this setup as a **proof-of-concept testbed** to examine how a bounded orchestration layer can influence system-level outcomes, such as revenue, waiting time, unmet demand, and service fairness, while keeping the hybrid charging infrastructure and underlying execution logic fixed.
+
+Importantly, this repository does **not** implement autonomous real-time control by a language model. The intended role of the agentic layer is limited to **policy-level orchestration and explainable configuration of the existing simulator**, so that system behavior remains transparent, auditable, and reproducible.
 
 ---
 
