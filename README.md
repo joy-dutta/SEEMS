@@ -148,7 +148,7 @@ To illustrate system behavior, the repository includes videos showing:
 📄 **Associated manuscripts**  
 Two journal manuscripts based on this framework are being prepared / submitted:
 - a methodological paper on the Stackelberg-based hybrid FCS–MCV optimization (target: **Energy**), and  
-- a system-level research paper on bounded agentic AI orchestration for dynamic EV charging with fixed charging stations and mobile charging vehicles (target: **Sustainable Cities and Society**).
+- a system-level research paper on bounded agentic AI orchestration for dynamic EV charging with fixed charging stations and mobile charging vehicles (target: **IEEE Network Magazine**).
 
 📌 **Code release plan**  
 To protect the integrity of the peer-review process and allow for double-blind submissions where required, the full source code will be released after the associated manuscripts complete peer review and are accepted. Until then, the technical documentation and parameter tables provide sufficient detail for independent reimplementation of the main experiments.
