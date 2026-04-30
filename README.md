@@ -243,11 +243,11 @@ To support the IEEE Network review process, this repository includes two compani
 
 1. **Plain-language experiment guide**
 
-   Explains the real-world analogy, EV/FCS/MCV setup, controller modes, EV and operator intents, result columns, and interpretation of the normal and extended evaluations.
+   Explains the real-world analogy, EV/FCS/MCV setup, controller modes, EV and operator intents, result columns, and interpretation of the normal and extended evaluations. File name: "AGENTIC_EXPERIMENT_GUIDE_EASY_READ"
 
 2. **Technical recreation guide**
 
-   Provides the mathematical formulas, queueing logic, satisfaction calculation, MCV deployment rules, bounded LLM contract, controller definitions, output files, and parameter values needed to recreate the experiment.
+   Provides the mathematical formulas, queueing logic, satisfaction calculation, MCV deployment rules, bounded LLM contract, controller definitions, output files, and parameter values needed to recreate the experiment. File name: "AGENTIC_EXPERIMENT_RECREATION_TECHNICAL_GUIDE"
 
 Together, these documents expand the compact proof-of-concept section in the IEEE Network article. The article itself is space-limited, while the repository documents provide the full practical and technical detail for reviewers and future researchers.
 
