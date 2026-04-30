@@ -159,39 +159,128 @@ Stay tuned for further updates! 🚀🔋⚡
 
 ## Role in Agentic AI for Hybrid EV Charging
 
-In addition to the Stackelberg-based optimization study, this simulator also serves as the underlying decision engine for a second line of work on **agentic AI for dynamic EV charging**.
+This repository also supports a second line of work on **agentic AI for dynamic EV charging**, currently under review as an IEEE Network Magazine article:
 
-That work studies how a higher-level planning layer can make a hybrid EV charging system easier to steer, explain, and align with different stakeholder priorities without changing the physical charging logic itself. Instead of directly controlling chargers or vehicles, the agentic layer operates **above** the SEEMS simulator and modifies only a small set of bounded, interpretable policy settings that shape how the existing hybrid FCS-MCV platform behaves.
+> *Agentic AI for Dynamic EV Charging: Explainable Coordination of Fixed Charging Stations and Mobile Charging Vehicles*
 
-Examples of such policy-level settings include:
+The central idea of that article is not that a language model should directly control chargers, power electronics, or vehicles. Instead, the proposed architecture uses an LLM-based agentic layer as a **bounded tactical coordinator** above an existing EV charging simulator. The simulator remains responsible for the physical and operational calculations: travel time, queueing delay, service time, charger availability, MCV battery feasibility, pricing, reservation feasibility, and resource-state updates.
 
-- the profit margin parameter `θ` and the pricing-cost weights `(α, β, γ)` used in the MCV pricing rule,  
-- the driver preference weights `(ζ, δ, ε)` that determine how charging cost, travel distance, and waiting time are balanced in EV decision-making,  
-- congestion-response and deployment-trigger settings that influence when and where MCVs are dispatched,  
-- Pareto tie-breaking or operating-point selection rules used when multiple feasible trade-offs exist, and  
-- fairness-related indicators or thresholds used to evaluate district-level service quality.
+In other words:
 
-By adjusting only these bounded controls, the same SEEMS simulator can be reoriented toward different operating modes, such as:
-- revenue-oriented operation,
-- equity-aware service provision across districts, or
-- peak-resilient charging support during congestion or disruption.
+- the simulator decides what actions are physically feasible;
+- the LLM-based agent reads operator and EV context;
+- the LLM can choose only from simulator-generated feasible options;
+- every LLM decision can be checked, logged, and audited;
+- low-level real-time charger control remains outside the LLM.
 
-This makes the simulator useful not only as an optimization artifact, but also as a **tactical and operational backend** for studying explainable AI-assisted coordination in EV charging systems. In that setting, the simulator continues to handle queueing, assignment, pricing logic, MCV deployment, and infrastructure constraints, while the higher-level planner provides policy intent and configuration updates.
+This distinction is important for reviewers. The agentic AI layer is not an unconstrained autonomous controller. It is an **intent-to-action and explanation layer** that helps translate EV preferences, operator policy, and system state into bounded decisions over a hybrid FCS-MCV charging system.
 
-The associated agentic AI manuscript uses this setup as a **proof-of-concept testbed** to examine how a bounded orchestration layer can influence system-level outcomes, such as revenue, waiting time, unmet demand, and service fairness, while keeping the hybrid charging infrastructure and underlying execution logic fixed.
+### Proof-of-Concept Experiment Used in the IEEE Network Article
 
-Importantly, this repository does **not** implement autonomous real-time control by a language model. The intended role of the agentic layer is limited to **policy-level orchestration and explainable configuration of the existing simulator**, so that system behavior remains transparent, auditable, and reproducible.
+For the IEEE Network proof-of-concept, we implemented a lightweight hybrid EV charging simulator with:
+
+- a 20 km by 20 km Manhattan-style service region;
+- 3 fixed charging stations (FCSs);
+- 6 mobile charging vehicles (MCVs);
+- heterogeneous EV models from Tesla, BYD, Geely, and Volkswagen;
+- EV-side intents: `time_optimized`, `cost_optimized`, and `greedy`;
+- an operator-side revenue-oriented policy;
+- per-resource queue updates after each EV assignment;
+- MCV battery-reserve feasibility, so an MCV cannot accept EVs indefinitely;
+- per-EV flow logs and aggregate comparison files.
+
+The proof-of-concept uses realistic abstraction rather than field deployment. FCSs are modeled as DC fast-charging sites with multiple ports. MCVs are modeled as battery-backed mobile chargers that can be dispatched from a central depot to FCS locations as temporary capacity boosters. EVs arrive during a peak-period setting, and each EV sees the current state of queues, travel time, charging time, cost, and feasible FCS/MCV options.
+
+### Controller Modes Compared
+
+The IEEE Network experiment compares three main controller modes:
+
+1. **`deterministic_fixed`**
+
+   This is the original fixed-rule non-LLM baseline. It uses deterministic scoring logic and does not make any LLM calls.
+
+2. **`deterministic_satisfaction`**
+
+   This is a stronger non-LLM comparator. It receives the same feasible option list available to the EV-side LLM and chooses the option with the highest estimated EV satisfaction. Ties are broken by lower waiting time, lower cost, and lower total time.
+
+3. **`llm_full`**
+
+   This is the bounded LLM-assisted controller. For each arriving EV, the operator-side LLM can reason about whether mobile support should be deployed, and the EV-side LLM can choose one option from the feasible simulator-generated option list. The LLM cannot invent new stations, prices, meeting points, queues, or physical resources.
+
+The second controller is especially important. It prevents the proof-of-concept from being a weak comparison of "LLM versus simple heuristic." Instead, the LLM-assisted controller is compared against both an original fixed rule and a strong satisfaction-maximizing non-LLM controller.
+
+### What EV Satisfaction Means
+
+The key user-centered metric is **EV satisfaction**, not operator revenue. For each EV, the simulator evaluates the chosen option using a weighted utility over:
+
+- total time,
+- charging cost,
+- waiting time,
+- reservation reliability.
+
+The weights depend on the EV intent. A `time_optimized` EV gives more importance to time and waiting. A `cost_optimized` EV gives more importance to monetary cost. A `greedy` EV chooses the currently best immediate tradeoff among time, price, distance, and MCV suitability, without planning for future system outcomes.
+
+This satisfaction score is used consistently across deterministic and LLM-assisted runs.
+
+
+### Extended Evaluation for the Paper Revision
+
+To make the proof-of-concept stronger for peer review, an extended evaluation was added. It includes:
+
+- a demand sweep over EV counts from 10 to 30;
+- the three controller modes listed above;
+- representative reruns using three random seeds;
+- role ablations with `llm_operator_only` and `llm_ev_only`;
+- LLM call-budget logging;
+- feasibility and compliance auditing for every LLM EV decision;
+- per-EV decision logs and aggregate CSV/TeX summary tables.
+
+The extended evaluation found that hybrid FCS-MCV activity appeared already at the 10-EV case. Therefore, the routine and hybrid-threshold cases coincide in this particular experiment. A stronger stress scenario with 30 EVs was also evaluated. These results should be interpreted carefully. The satisfaction-maximizing deterministic controller is very strong and often reduces waiting time by aggressively selecting MCV options. The LLM-assisted controller does not simply minimize waiting time. Instead, it provides a bounded, policy-aware coordination layer that balances EV satisfaction, operator intent, and scarce mobile-charger use.
+
+### Repository Documents for Reviewers
+
+To support the IEEE Network review process, this repository includes two companion PDFs for the agentic AI proof-of-concept:
+
+1. **Plain-language experiment guide**
+
+   Explains the real-world analogy, EV/FCS/MCV setup, controller modes, EV and operator intents, result columns, and interpretation of the normal and extended evaluations.
+
+2. **Technical recreation guide**
+
+   Provides the mathematical formulas, queueing logic, satisfaction calculation, MCV deployment rules, bounded LLM contract, controller definitions, output files, and parameter values needed to recreate the experiment.
+
+Together, these documents expand the compact proof-of-concept section in the IEEE Network article. The article itself is space-limited, while the repository documents provide the full practical and technical detail for reviewers and future researchers.
+
+### What This Repository Does Not Claim
+
+This repository does **not** claim that LLMs replace optimization, reinforcement learning, queueing models, or verified local controllers. It also does **not** implement autonomous real-time control by a language model.
+
+The intended role of the LLM-based agentic layer is limited to:
+
+- tactical EV-arrival and dispatch-decision events;
+- bounded selection among feasible simulator-generated options;
+- operator-policy interpretation;
+- EV-preference interpretation;
+- explanation and audit support.
+
+This matches the central argument of the IEEE Network article: agentic AI is most useful for dynamic EV charging when it acts as a transparent, auditable orchestration layer above existing charging models and controllers, rather than bypassing them.
 
 ---
 
 ## Reproducibility and Current Contents
 
-At the moment, this repository provides:
+For the Stackelberg-based SEEMS optimization study, the repository provides the existing technical documentation and visualization artifacts describing the hybrid FCS-MCV model, deployment logic, and simulation setup.
 
-- a detailed technical PDF that explains the model formulation, optimization approach, deployment logic, and simulation setup used in the manuscripts,  
-- three short videos that visualize EV arrivals, cumulative FCS–MCV assignments, and real-time assignment dynamics.
+For the IEEE Network agentic-AI proof-of-concept, the repository provides two additional PDF companions:
 
-The Python implementation will be released in a later update once the associated journal manuscripts have completed peer review. The technical document includes all modeling assumptions, parameter values, and algorithmic details (including pseudo-code) needed to reimplement the framework independently. 
+- a plain-language guide to the normal and extended evaluations;
+- a technical recreation guide with all formulas, parameters, controller modes, and output-file descriptions.
+
+These documents are intended to help reviewers trace the paper's proof-of-concept claims back to the simulator assumptions, calculations, and result files. If the source code is not yet public during peer review, the technical recreation guide provides the necessary details to independently reproduce the experiment structure and metrics.
+
+
+
+
 
 ---
 
